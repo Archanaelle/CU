@@ -1,0 +1,22 @@
+{
+  "name": "cu-grabber",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://arhimondus:12345v@bitbucket.org/Arhimondus/cu-grabber.git"
+  },
+  "author": "AB",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/Arhimondus/cu-grabber#readme",
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "jsdom": "^9.12.0",
+    "random-http-useragent": "^1.0.2",
+    "request": "^2.81.0"
+  }
+}

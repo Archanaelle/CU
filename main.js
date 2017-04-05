@@ -67,6 +67,10 @@ app.get("/example", (req, res) => {
 	 res.redirect('/get/30001062/2');
 });
 
+app.get("/test", (req, res) => {
+	res.send("100zzz");
+});
+
 app.listen(99, function () { //3030
 	console.log('coun stated');
 });

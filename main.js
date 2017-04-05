@@ -60,8 +60,8 @@ function get_single_page(group, page) {
 }
 
 app.get("/get/:group/:page", async (req, res) => {
-	var list = await get_single_page(30001062, 2);
-	res.json(beautify(list, null, 4, 100));
+	var list = await get_single_page(req.params.group, req.params.page);
+	res.send(beautify(list, null, 8, 100).replace(/\n/g, "<br/>").replace(/\s/g, "&nbsp;"));
 });	
 
 app.get("/example", (req, res) => {

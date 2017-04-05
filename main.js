@@ -59,6 +59,20 @@ function get_single_page(group, page) {
 	});
 }
 
+app.get("/getupto/:group/:page", async (req, res) => {
+	var lists = [];
+	var list;
+	var upto = req.params.page-0;
+	var group = req.params.group;
+	console.log("begin");
+	for(var i = 0; i < upto; i++) {
+		console.log(group + "-" + i);
+		list = await get_single_page(group, i);
+		lists.push(list);
+	}
+	res.send(beautify(lists, null, 8, 100).replace(/\n/g, "<br/>").replace(/\s/g, "&nbsp;"));
+});
+
 app.get("/get/:group/:page", async (req, res) => {
 	var list = await get_single_page(req.params.group, req.params.page);
 	res.send(beautify(list, null, 8, 100).replace(/\n/g, "<br/>").replace(/\s/g, "&nbsp;"));

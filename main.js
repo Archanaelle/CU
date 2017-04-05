@@ -5,8 +5,8 @@ var randomUserAgent = require('bluebird').promisifyAll(require('random-http-user
 var express = require('express');
 var app = express();
 
-async function get_single_page(group, page) {
-	return new Promise((resolve, reject) => {
+function get_single_page(group, page) {
+	return new Promise(async (resolve, reject) => {
 		request.post("https://www.computeruniverse.ru/list.asp", {
 			form: {
 				ajamode: 2,
@@ -68,5 +68,5 @@ app.get("/example", (req, res) => {
 });
 
 app.listen(99, function () { //3030
-	console.log('%s listening at %s', app.name, app.url);
+	console.log('coun stated');
 });

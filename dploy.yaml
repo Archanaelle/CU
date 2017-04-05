@@ -1,0 +1,8 @@
+server_name:
+    scheme: sftp
+    host: "185.58.204.22"
+    user: "root"
+    pass: "DJn4QtKPmj5g"
+    path:
+        local: "/"
+        remote: "/home/coun/"

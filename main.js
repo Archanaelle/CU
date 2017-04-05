@@ -63,7 +63,10 @@ app.get("/get/:group/:page", async (req, res) => {
 	res.json(list);
 });	
 
-
 app.get("/example", (req, res) => {
 	 res.redirect('/get/30001062/2');
+});
+
+app.listen(99, function () { //3030
+	console.log('%s listening at %s', app.name, app.url);
 });

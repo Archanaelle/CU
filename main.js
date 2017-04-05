@@ -1,6 +1,7 @@
 var request = require('request');
 var jsdom = require('jsdom');
 var jquery = require('jquery');
+var beautify = require("json-beautify");
 var randomUserAgent = require('bluebird').promisifyAll(require('random-http-useragent'));
 var express = require('express');
 var app = express();
@@ -60,7 +61,7 @@ function get_single_page(group, page) {
 
 app.get("/get/:group/:page", async (req, res) => {
 	var list = await get_single_page(30001062, 2);
-	res.json(list);
+	res.json(beautify(list, null, 4, 100));
 });	
 
 app.get("/example", (req, res) => {

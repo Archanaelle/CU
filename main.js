@@ -59,7 +59,7 @@ function get_single_page(group, page) {
 	});
 }
 
-app.get("/getupto/:group/:page", async (req, res) => {
+/*app.get("/getupto/:group/:page", async (req, res) => {
 	var lists = [];
 	var list;
 	var upto = req.params.page-0;
@@ -71,7 +71,7 @@ app.get("/getupto/:group/:page", async (req, res) => {
 		lists.push(list);
 	}
 	res.send(beautify(lists, null, 8, 100).replace(/\n/g, "<br/>").replace(/\s/g, "&nbsp;"));
-});
+});*/
 
 app.get("/get/:group/:page", async (req, res) => {
 	var list = await get_single_page(req.params.group, req.params.page);

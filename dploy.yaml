@@ -1,8 +1,8 @@
 server_name:
     scheme: sftp
-    host: "185.58.204.22"
-    user: "root"
-    pass: "DJn4QtKPmj5g"
+    host: "185.117.152.135"
+    user: "coun"
+    pass: "44444"
     path:
         local: "/"
-        remote: "/home/coun/"
+        remote: "/var/www/html/coun.shop/cu-grabber"

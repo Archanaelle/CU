@@ -79,7 +79,7 @@ var mysql = require('promise-mysql');
 var connection;
  
 pool = mysql.createPool({
-	host: '127.0.0.1',
+	host: 'localhost',
 	user: 'coun', //coun
 	password: 'yyyzzz002V', //yyyzzz002V
 	database: 'coun.shop', //coun.shop

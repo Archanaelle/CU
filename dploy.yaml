@@ -2,7 +2,7 @@ server_name:
     scheme: sftp
     host: "185.117.152.135"
     user: "coun"
-    pass: "44444"
+    pass: "yyyzzz002V"
     path:
         local: "/"
         remote: "/var/www/html/coun.shop/cu-grabber"

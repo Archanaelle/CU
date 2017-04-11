@@ -1,7 +1,7 @@
 server_name:
     scheme: sftp
     host: "185.117.152.135"
-    user: "coun"
+    user: "coun.shop"
     pass: "yyyzzz002V"
     path:
         local: "/"

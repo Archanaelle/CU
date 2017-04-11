@@ -85,7 +85,7 @@ pool = mysql.createPool({
 	password: 'yyyzzz002V',
 	database: 'coun.shop',
 	connectionLimit: 10
-});
+}); //admin y4566400kg
 
 function compute_description_from_props(props) {
 	return "<ul>"+props.map((a)=>`<li>${a}</li>`).reduce((a,b)=>a+b)+"</ul>";
@@ -130,10 +130,14 @@ function update_item(item, category_id) {
 
 async function start() {
 	var group = argv.group || 30001062;
-	var page = argv.page || 2;
-	var list = await get_single_page(group, page);
-	for(var i = 0; i < list.length; i++) {
-		await update_item(list[i], group);
+	var from = argv.from || 1;
+	var to = argv.to || 1;
+	
+	for(var page = from; page <= to; page++) {
+		var list = await get_single_page(group, page);
+		for(var i = 0; i < list.length; i++) {
+			await update_item(list[i], group);
+		}
 	}
 	console.log("END.");
 	process.exit();

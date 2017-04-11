@@ -80,9 +80,10 @@ var connection;
  
 pool = mysql.createPool({
 	host: 'localhost',
-	user: 'coun', //coun
-	password: 'yyyzzz002V', //yyyzzz002V
-	database: 'coun.shop', //coun.shop
+	port: '/var/lib/mysql/mysql.sock',
+	user: 'coun',
+	password: 'yyyzzz002V',
+	database: 'coun.shop',
 	connectionLimit: 10
 });
 

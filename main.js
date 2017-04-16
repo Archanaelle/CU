@@ -75,12 +75,12 @@ function get_single_page(group, page) {
 	});
 }
 
-var mysql = require('promise-mysql');
+var mysql = require('bluebird').promisifyAll(require('promise-mysql'));
 var connection;
  
 pool = mysql.createPool({
-	host: 'localhost',
-	port: '/var/lib/mysql/mysql.sock',
+	host: '185.117.152.135',
+	//port: '/var/lib/mysql/mysql.sock',
 	user: 'coun',
 	password: 'yyyzzz002V',
 	database: 'coun.shop',
@@ -128,12 +128,12 @@ function update_item(item, category_id) {
 	});
 }
 
-async function start() {
+async function grub_products() { //example --from=1 --to=23 (с 23 до 1)
 	var group = argv.group || 30001062;
 	var from = argv.from || 1;
 	var to = argv.to || 1;
 	
-	for(var page = from; page <= to; page++) {
+	for(var page = to; page >= from; page--) {
 		var list = await get_single_page(group, page);
 		for(var i = 0; i < list.length; i++) {
 			await update_item(list[i], group);
@@ -143,4 +143,18 @@ async function start() {
 	process.exit();
 }
 
-start();
+grub_products();
+
+async function create_category(category_id, category_name) {
+	
+	var sql = `INSERT INTO oc_category (category_id, image, parent_id, top, column, sort_order, status, date_added, date_modified) VALUES ('${category_id}', '', '0', '0', '1', '0', '1', '', '');`;
+	pool.query(sql).then(function(item){
+		var sql2 = `INSERT INTO oc_category_description (category_id, language_id, name, description, meta_title, meta_description, meta_keyword) VALUES (${category_id}, '1', '${category_name}', '', '${category_name}', '', '');`;
+		pool.query(sql2).then(function(item){
+			var sql3 = `INSERT INTO oc_category_path (category_id, path_id, level) VALUES (${category_id}, ${category_id}, 0)`;
+			pool.query(sql3).then(function(item){
+				var sql4 = `INSERT INTO oc_category_path (category_id, path_id, level) VALUES (${category_id}, ${category_id}, 0);`;
+			});
+		});
+	});
+}

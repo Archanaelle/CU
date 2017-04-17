@@ -90,6 +90,7 @@ pool = mysql.createPool({
 }); //admin y4566400kg
 
 function compute_description_from_props(props) {
+	if(typeof(props) == "undefined" || props.length == 0) return "Нет описания"; 
 	return "<ul>"+props.map((a)=>`<li>${a}</li>`).reduce((a,b)=>a+b)+"</ul>";
 }
 
@@ -105,6 +106,7 @@ function update_item(item, category_id) {
 			await download(item.image, "images/" + image);
 		}
 		
+		await pool.query(`INSERT INTO oc_product (product_id, model, sku, upc, ean, jan, isbn, mpn, location, quantity, stock_status_id, image, manufacturer_id, shipping, price, points, tax_class_id, date_available, weight, weight_class_id, length, width, height, length_class_id, subtract, minimum, sort_order, status, viewed, date_added, date_modified) VALUES (${product_id}, ${title}, '', '', '', '', '', '', '', '6', '7', '${image}', 0, '1', '${price}', '0', '9', '2009-02-03', '146.40000000', '2', '0.00000000', '0.00000000', '0.00000000', '1', '1', '1', '0', '1', '0', '2009-02-03 16:06:50', '2017-04-09 19:50:22') ON DUPLICATE KEY UPDATE model=VALUES(model), sku=VALUES(sku), upc=VALUES(upc), ean=VALUES(ean), jan=VALUES(jan), isbn=VALUES(isbn), mpn=VALUES(mpn), location=VALUES(location), quantity=VALUES(quantity), stock_status_id=VALUES(stock_status_id), image=VALUES(image), manufacturer_id=VALUES(manufacturer_id), shipping=VALUES(shipping), price=VALUES(price), points=VALUES(points), tax_class_id=VALUES(tax_class_id), date_available=VALUES(date_available), weight=VALUES(weight), weight_class_id=VALUES(weight_class_id), length=VALUES(length), width=VALUES(width), height=VALUES(height), length_class_id=VALUES(length_class_id), subtract=VALUES(subtract), minimum=VALUES(minimum), sort_order=VALUES(sort_order), status=VALUES(status), viewed=VALUES(viewed);`);
 		await pool.query(`REPLACE INTO oc_product (product_id, model, sku, upc, ean, jan, isbn, mpn, location, quantity, stock_status_id, image, manufacturer_id, shipping, price, points, tax_class_id, date_available, weight, weight_class_id, length, width, height, length_class_id, subtract, minimum, sort_order, status, viewed, date_added, date_modified) VALUES (${product_id}, ${title}, '', '', '', '', '', '', '', '6', '7', '${image}', 0, '1', '${price}', '0', '9', '2009-02-03', '146.40000000', '2', '0.00000000', '0.00000000', '0.00000000', '1', '1', '1', '0', '1', '0', NOW(), NOW());`);
 		await pool.query(`REPLACE INTO oc_product_description (product_id, language_id, name, description, tag, meta_title, meta_description, meta_keyword) VALUES ('${product_id}', '1', ${title}, ${description}, '', ${title}, '', '');`);
 		await pool.query(`REPLACE INTO oc_product_to_category (product_id, category_id) VALUES (${product_id}, ${category_id});`);

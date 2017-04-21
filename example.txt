@@ -1,0 +1,17 @@
+Вот это в один файл (например, add_categories.bat):
+
+node main --parent=2 --action=create_category --category_id=30000167 --category_name="МФУ"
+
+node main --parent=2 --action=create_category --category_id=30001825 --category_name="3D-принтеры"
+
+...
+
+Вот это во второй файл (например, add_products.bat):
+
+node main --action=grub_products --group=30000167 --from=1 --to=max
+
+node main --action=grub_products --group=30001825 --from=1 --to=max
+
+...
+
+

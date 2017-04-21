@@ -21,58 +21,106 @@ function download(uri, filename) {
 	});
 }
 
+//var proxiesList = fs.readFileSync("proxies.txt", "utf8").split('\r\n');
+//var nextProxy = 0;
+//var flag = 0;
 function get_single_page(group, page) {
 	return new Promise(async (resolve, reject) => {
-		request.post("https://www.computeruniverse.ru/list.asp", {
-			form: {
-				ajamode: 2,
-				group: group,
-				navigate: page,
-				v: 0,
-				o: "[POP],+[SC],+[VKB],+[N1],+[N2]",
-			},
-			headers: {
-				'User-Agent': await randomUserAgent.get(),
-			}
-		}, function (error, response, body) {
-			if (error || response.statusCode != 200) {
-				console.log(error);
-				reject();
-				return;
-			}
-			jsdom.env(body, function(err, window) {
-				if (err) {
-					console.error(err);
-					reject();
+		try {
+			//if(page == 100 && flag <= 3) {flag++; throw new Exception();};
+			request.post("https://www.computeruniverse.ru/list.asp", {
+				form: {
+					ajamode: 2,
+					group: group,
+					navigate: page,
+					v: 0,
+					o: "[POP],+[SC],+[VKB],+[N1],+[N2]",
+				},
+				//proxy: proxiesList[nextProxy++],
+				//tunnel: true,
+				headers: {
+					'User-Agent': await randomUserAgent.get(),
+				}
+			}, function (error, response, body) {
+				if (error || response.statusCode != 200) {
+					resolve(-1);
 					return;
 				}
-				var $ = jquery(window);
-				var list = [];
-				$(".productsTableRow").each(function() {
-					var good = {};
-					good.id = $(this).attr("id")-0;
-					good.image = $(this).find("img").data("original");
-					if(good.image[0] == "/") good.image = "https://www.computeruniverse.ru" + good.image;
-					good.title = $(this).find(".listProductTitle").find(".ellipsisBlock").text();
-					good.props = $(this).find(".props").find("li").map(function() {
-						return $(this).find("span").map(function() { return $(this).text() }).toArray().reduce((a, b) => a + b);
-					}).toArray();
-					good.sale = $(this).find(".listPercentViewBig").text() || null;
-					try {
-						good.badPrice = /([0-9,]+)/g.exec($(this).find(".priceStrokeBlue").text())[0].replace(",", ".")-0;
-					} catch(ex) {
-						good.badPrice = null;
+				jsdom.env(body, function(err, window) {
+					if (err) {
+						console.error(err);
+						resolve(-1);
+						return;
 					}
-					good.price =  /([0-9,.]+)/g.exec($(this).find(".priceItalicBig").text())[0].replace(".", "").replace(",", ".")-0;
-					good.delivery = {
-						where: $(this).find(".listStatusInfo strong").text(),
-						status: $(this).find(".listStatusInfo span").text(),
-					};
-					list.push(good);
+					var $ = jquery(window);
+					var list = [];
+					$(".productsTableRow").each(function() {
+						var good = {};
+						good.id = $(this).attr("id")-0;
+						good.image = $(this).find("img").data("original");
+						if(good.image[0] == "/") good.image = "https://www.computeruniverse.ru" + good.image;
+						good.title = $(this).find(".listProductTitle").find(".ellipsisBlock").text();
+						good.props = $(this).find(".props").find("li").map(function() {
+							return $(this).find("span").map(function() { return $(this).text() }).toArray().reduce((a, b) => a + b);
+						}).toArray();
+						good.sale = $(this).find(".listPercentViewBig").text() || null;
+						try {
+							good.badPrice = /([0-9,]+)/g.exec($(this).find(".priceStrokeBlue").text())[0].replace(",", ".")-0;
+						} catch(ex) {
+							good.badPrice = null;
+						}
+						good.price =  /([0-9,.]+)/g.exec($(this).find(".priceItalicBig").text())[0].replace(".", "").replace(",", ".")-0;
+						good.delivery = {
+							where: $(this).find(".listStatusInfo strong").text(),
+							status: $(this).find(".listStatusInfo span").text(),
+						};
+						list.push(good);
+					});
+					resolve(list);
 				});
-				resolve(list);
-			});
-		});	
+			});	
+		} catch(ex) {
+			resolve(-1);
+		}
+	});
+}
+
+function get_max_to(group) {
+	return new Promise(async (resolve, reject) => {
+		try {
+			//if(page == 100 && flag <= 3) {flag++; throw new Exception();};
+			request.post("https://www.computeruniverse.ru/list.asp", {
+				form: {
+					ajamode: 2,
+					group: group,
+					navigate: 1,
+					v: 0,
+					o: "[POP],+[SC],+[VKB],+[N1],+[N2]",
+				},
+				//proxy: proxiesList[nextProxy++],
+				//tunnel: true,
+				headers: {
+					'User-Agent': await randomUserAgent.get(),
+				}
+			}, function (error, response, body) {
+				if (error || response.statusCode != 200) {
+					resolve(-1);
+					return;
+				}
+				jsdom.env(body, function(err, window) {
+					if (err) {
+						console.error(err);
+						resolve(-1);
+						return;
+					}
+					var $ = jquery(window);
+				
+					resolve($("#pageLast").text()-0);
+				});
+			});	
+		} catch(ex) {
+			resolve(-1);
+		}
 	});
 }
 
@@ -103,7 +151,10 @@ function update_item(item, category_id) {
 		var image = "catalog/coun/" + path.basename(item.image);
 		
 		if (!fs.existsSync("image/" + image)) {
-			await download(item.image, "image/" + image);
+			try {
+				await download(item.image, "image/" + image);
+			} catch(ex) {
+			}
 		}
 		
 		await pool.query(`INSERT INTO oc_product (product_id, model, sku, upc, ean, jan, isbn, mpn, location, quantity, stock_status_id, image, manufacturer_id, shipping, price, points, tax_class_id, date_available, weight, weight_class_id, length, width, height, length_class_id, subtract, minimum, sort_order, status, viewed, date_added, date_modified) VALUES (${product_id}, ${title}, '', '', '', '', '', '', '', '6', '7', '${image}', 0, '1', '${price}', '0', '9', '2009-02-03', '146.40000000', '2', '0.00000000', '0.00000000', '0.00000000', '1', '1', '1', '0', '1', '0', '2009-02-03 16:06:50', '2017-04-09 19:50:22') ON DUPLICATE KEY UPDATE model=VALUES(model), sku=VALUES(sku), upc=VALUES(upc), ean=VALUES(ean), jan=VALUES(jan), isbn=VALUES(isbn), mpn=VALUES(mpn), location=VALUES(location), quantity=VALUES(quantity), stock_status_id=VALUES(stock_status_id), image=VALUES(image), manufacturer_id=VALUES(manufacturer_id), shipping=VALUES(shipping), price=VALUES(price), points=VALUES(points), tax_class_id=VALUES(tax_class_id), date_available=VALUES(date_available), weight=VALUES(weight), weight_class_id=VALUES(weight_class_id), length=VALUES(length), width=VALUES(width), height=VALUES(height), length_class_id=VALUES(length_class_id), subtract=VALUES(subtract), minimum=VALUES(minimum), sort_order=VALUES(sort_order), status=VALUES(status), viewed=VALUES(viewed);`);
@@ -116,17 +167,22 @@ function update_item(item, category_id) {
 	});
 }
 
+
+var repeats = 0;
 var wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 var cyclic = func => new Promise(async (resolve, reject) => {
+	repeats = 0;
 	while(true) {
-		try {
-			var data = func();
-			resolve(data);
-			break;
-		} catch(ex) {
-			await wait(2000);
+		var data = await func();
+		if(data == -1) {
+			if(repeats == 10) throw new Exception();
+			process.stdout.write(".");
+			repeats++;
+			await wait(750);
 			continue;
 		}
+		resolve(data);
+		break;
 	}
 });
 //cyclic(()=>{alert();throw new Exception();});
@@ -138,6 +194,8 @@ if(argv.action == "grub_products") {
 	var to = argv.to || 1;
 	
 	async function grub_products(group, from, to) {
+		if(to == "max") to = await cyclic(async() => await get_max_to(group));
+		console.log(to);
 		for(var page = to; page >= from; page--) {	
 			console.log("Загрузка страницы " + page);
 			var list = await cyclic(async () => await get_single_page(group, page));
@@ -168,11 +226,11 @@ if(argv.action == "grub_products") {
 	
 	var category_id = argv.category_id || 30001560;
 	var category_name = pool.escape(argv.category_name || "Ноутбуки, планшеты и ...");
-
+	var parent_id = argv.parent || 0;
 	async function create_category(category_id, category_name) {
 		console.log("Добавление категории " + category_id);
 		try{
-			await pool.query(`REPLACE INTO oc_category (category_id, image, parent_id, \`top\`, \`column\`, sort_order, \`status\`, date_added, date_modified) VALUES (${category_id}, '', 0, 0, 0, 0, 1, NOW(), NOW());`);
+			await pool.query(`REPLACE INTO oc_category (category_id, image, parent_id, \`top\`, \`column\`, sort_order, \`status\`, date_added, date_modified) VALUES (${category_id}, '', ${parent_id}, 0, 0, 0, 1, NOW(), NOW());`);
 			await pool.query(`REPLACE INTO oc_category_description (category_id, language_id, name, description, meta_title, meta_description, meta_keyword) VALUES (${category_id}, 1, ${category_name}, '', ${category_name}, '', '');`);
 			await pool.query(`REPLACE INTO oc_category_path (category_id, path_id, level) VALUES (${category_id}, ${category_id}, 0)`);
 			await pool.query(`REPLACE INTO oc_category_to_layout (category_id, store_id, layout_id) VALUES (${category_id}, 0, 0);`);
